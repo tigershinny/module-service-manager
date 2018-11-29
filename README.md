@@ -7,8 +7,6 @@
 * [理想的模块化架构](#理想的模块化架构)
 * [模块化后的一些优化](#模块化后的一些优化)
 * [模块化通信](#模块化通信)
-* [模块化通信方案介绍](#模块化通信方案介绍)
-* [模块间通信方案引入步骤](#模块间通信方案引入步骤)
 ****
 
 ## 模块化或组件化
@@ -35,7 +33,7 @@
 
 	- 每个module都添加一个Application的工程然后再依赖对应的模块，可以将这样的模块聚合到一个目录下，例如modules-wrapper，在settings.gradle中添加：
 	```Groovy
-	include ':sample2:modules-wrapper:module-a-app',':sample2:modules-wrapper:module-b-app'
+	include ':modules-wrapper:module-a-app',':modules-wrapper:module-b-app'
 	```
 	- 然后新建modules-wrapper目录，在该目录下建各模块的工程module-a-app，module-b-app...
 	- module-a-app这样的工程都是application工程，提供模块启动的壳
@@ -48,7 +46,7 @@
 
 一种优化的思路是这样的：把模块的项目project形式依赖该为aar形式依赖，因为aar里已经是编译好的class代码了，减少了java编译为class和kotlin编译为class的过程。把不经常改变的模块打成aar，或者如果你在开发A模块，你就可以选择将所有除A模块以外的模块全部以aar形式进行依赖，或者你可以选择依赖你需要关心的模块，你不关心的模块可以不依赖。aar可以发布到公司内部私服里，还有一种办法是直接发布到本地maven库，即在本地建一个目录例如local_maven，将所有aar发布到该目录下，项目中再引入该本地maven即可。下面详细介绍通过脚本改造快捷的实现方案：
 
-- 首先在[utils.gradle](https://github.com/heimashi/module-service-manager/blob/master/utils.gradle)的脚本中添加发布aar的task，可以快捷的在所有的project中注入发布的task避免重复的发布脚本
+- 首先在[utils.gradle](https://github.com/tigershinny/module-service-manager/blob/master/utils.gradle)的脚本中添加发布aar的task，可以快捷的在所有的project中注入发布的task避免重复的发布脚本
 ```Groovy
 //add task about publishing aar to local maven
 task publishLocalMaven {
@@ -91,7 +89,7 @@ ext {
 
 - 然后就可以在各模块中执行发布aar的脚本，就可以在local_maven目录下查看到已发布的aar
 ```Shell
-./gradlew :sample2:module-a:publishLocalMaven
+./gradlew :module-a:publishLocalMaven
 
 ```
 
@@ -105,7 +103,7 @@ repositories {
     }
 ```
 
-- 在[utils.gradle](https://github.com/heimashi/module-service-manager/blob/master/utils.gradle)的脚本中添加根据变量控制编译方式的脚本
+- 在[utils.gradle](https://github.com/tigershinny/module-service-manager/blob/master/utils.gradle)的脚本中添加根据变量控制编译方式的脚本
 ```Groovy
 //返回0，1，2三种数值，默认返回0
 def getCompileType(propertyString) {
@@ -153,8 +151,8 @@ module-bCompileType=0
 - 最后在壳工程中就可以调用compileByPropertyType来进行依赖了,根据gradle.property中的变量来选择依赖方式：0采用project形式编译，1采用aar形式编译，2不编译
 ```Groovy
 dependencies {
-    runtimeOnlyByPropertyType(this, 'sample2:module-a')
-    runtimeOnlyByPropertyType(this, 'sample2:module-b')
+    runtimeOnlyByPropertyType(this, 'modules:module-a')
+    runtimeOnlyByPropertyType(this, 'modules:module-b')
     //...
 }
 ```
@@ -170,7 +168,7 @@ module-bCompileType=1
 
 除了在gradle.properties直接修改变量的值，也可以不修改任何代码，在执行gradle的编译task的时候可以添加参数，通过-P来设置参数：
 ```Shell
-./gradlew :sample2:app:asembleDebug -P module-aCompileType=2
+./gradlew :app:asembleDebug -P module-aCompileType=2
 ```
 
 ## 模块化通信
