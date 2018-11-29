@@ -1,0 +1,10 @@
+include ':app',
+        //modules
+        ':modules:module-a', ':modules:module-b',
+
+        //modules app for corresponding module
+        ':modules-app:module-a-app',':modules-app:module-b-app',
+
+        //dependency libs
+        ':libraries:common'
+

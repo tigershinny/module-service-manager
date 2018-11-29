@@ -1,0 +1,23 @@
+buildscript {
+
+    apply from: 'properties.gradle'
+    repositories {
+        addRepos(repositories)
+    }
+    dependencies {
+        classpath deps.android_gradle_plugin
+        classpath deps.kotlin.plugin
+    }
+}
+
+allprojects {
+    repositories {
+        addRepos(repositories)
+    }
+
+    apply from: rootProject.getRootDir().getAbsolutePath() + "/utils.gradle"
+}
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}

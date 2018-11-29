@@ -1,0 +1,10 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    package="com.tiger.example.a">
+
+    <application>
+
+        <activity android:name="com.tiger.example.a.AModuleActivity" />
+
+    </application>
+
+</manifest>
